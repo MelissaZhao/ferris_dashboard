@@ -53,7 +53,7 @@ minioClient = Minio(
 def get_json_file_url():
     chart_type = request.args.get('chart_type')
     json_file_name = f"{chart_type}_chart.json"
-    json_file_url = minioClient.presigned_get_object('ferris-home', json_file_name)
+    json_file_url = minioClient.presigned_get_object('ferris-dash', json_file_name)
     return jsonify(url=json_file_url)
 
 @app.route('/api/data', methods=['GET'])
@@ -236,10 +236,6 @@ def fetch_data_from_kafka(chart_type):
     return data
 
     
-
-
-
-
 def upload_to_minio(chart_type):
     # Fetch data from Kafka
     data = fetch_data_from_kafka(chart_type)
@@ -289,7 +285,7 @@ def upload_to_minio(chart_type):
     file_name = f"{chart_type}_chart.json"
 
     try:
-        minioClient.put_object("ferris-home", file_name, bytes_stream, length=bytes_stream.getbuffer().nbytes)
+        minioClient.put_object("ferris-dash", file_name, bytes_stream, length=bytes_stream.getbuffer().nbytes)
         print(f"JSON file {file_name} uploaded to MinIO.")
     except S3Error as exc:
         print(f"Error uploading JSON file {file_name} to MinIO: {exc}")
@@ -297,7 +293,7 @@ def upload_to_minio(chart_type):
 def get_minio_url(chart_type):
     file_name = f"{chart_type}_chart.json"
     try:
-        url = minioClient.presigned_get_object("ferris-home", file_name)
+        url = minioClient.presigned_get_object("ferris-dash", file_name)
         print(f"URL for {file_name}: {url}")
         return url
     except S3Error as exc:
