@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+</head>
+
+<body>
+    <div>
+        <label for="chartType">Choose chart type:</label>
+        <select name="chartType" id="chartType">
+            <option value="pie">Pie</option>
+            <option value="line">Line</option>
+            <option value="table">Table</option>
+        </select>
+    </div>
+    <div id="chartContainer">
+        <canvas id="chart"></canvas>
+        <table id="table" class="display" style="display:none"></table>
+    </div>
+    <script>
+        const chartCanvas = document.getElementById('chart');
+        const tableElement = document.getElementById('table');
+        let chart;
+        let dataTable;
+        const chartTypeSelect = document.getElementById('chartType');
+
+        function renderTable(data) {
+            // ...
+        }
+
+        function fetchDataAndRenderChart(chartType) {
+            // ...
+            fetch(`/api/data?chart_type=${chartType}`)
+                .then((response) => response.json())
+                .then((json) => fetch(json.url))
+                .then((response) => response.json())
+                .then(data => {
+                    if (chartType === 'table') {
+                        // ...
+                    } else {
+                        // ...
+                        chart = new Chart(chartCanvas, {
+                            type: data.type,
+                            data: data.data,
+                            options: {
+                                plugins: {
+                                    // ...
+                                },
+                                interaction: {
+                                    // ...
+                                },
+                                scales: {
+                                    y: {
+                                        ticks: {
+                                            callback: function (value, index, values) {
+                                                if (Number.isInteger(value)) {
+                                                    return value;
+                                                }
+                                            },
+                                            stepSize: 1
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        if (chartType === 'line') {
+                            chart.options.scales.y = {};
+                            chart.data.datasets.forEach((dataset, index) => {
+                                chart.options.scales[`y${index}`] = {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    id: `y${index}`,
+                                    ticks: {
+                                        callback: function (value) {
+                                            if (Number.isInteger(value)) {
+                                                return value;
+                                            }
+                                        },
+                                        stepSize: 1
+                                    }
+                                };
+                                dataset.yAxisID = `y${index}`;
+                            });
+                            chart.update();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        chartTypeSelect.addEventListener('change', (event) => {
+            fetchDataAndRenderChart(event.target.value);
+        });
+
+        // Initialize the chart with the selected chart type
+        fetchDataAndRenderChart(chartTypeSelect.value);
+    </script>
+</body>
+
+</html>
