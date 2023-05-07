@@ -85,7 +85,8 @@ def fetch_data_from_kafka(chart_type):
     global is_running
     consumer = KafkaConsumer(
         'esg-news',
-        bootstrap_servers='localhost:9092',
+        #bootstrap_servers='localhost:9092',
+        bootstrap_servers='kafka.core',
         value_deserializer=lambda x: json.loads(x.decode('utf-8')),
         auto_offset_reset='earliest',  # Start reading from the beginning of the topic
         consumer_timeout_ms=10000 # stop listening after 10s, otherwise loop doesn't exit
